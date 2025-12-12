@@ -1,5 +1,3 @@
-console.log('CWD:', process.cwd())
-
 import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
@@ -7,12 +5,12 @@ import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
 import chatHandler from './api/chat.js'
 
-
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
 dotenv.config({ path: join(__dirname, '.env') })
-console.log('ENV CHECK:', process.env.GEMINI_API_KEY)
+
+console.log('ENV CHECK:', process.env.GEMINI_API_KEY ? '✓ API Key loaded' : '✗ API Key missing')
 
 const app = express()
 const PORT = process.env.PORT || 3000
@@ -36,5 +34,3 @@ app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`)
   console.log(`Vite dev server should be on http://localhost:5173`)
 })
-
-

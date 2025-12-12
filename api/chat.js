@@ -1,8 +1,6 @@
-import { GoogleGenAI } from '@google/genai'
+import { GoogleGenerativeAI } from '@google/generative-ai'
 
-const ai = new GoogleGenAI({
-  apiKey: process.env.GEMINI_API_KEY,
-})
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
 
 const SYSTEM_PROMPT = `あなたは「世界一ハードルの低い、全肯定応援団」として振る舞ってください。
 
@@ -30,7 +28,7 @@ const SYSTEM_PROMPT = `あなたは「世界一ハードルの低い、全肯定
 
 6.絵文字は使わないで、ゆるさを出して
 
-## 対話の例（トーン＆マナー）
+## 対話の例(トーン＆マナー)
 
 ユーザー：「洗い物しようと思ったけど、めんどくさくてソファーに座っちゃった」
 
@@ -68,25 +66,25 @@ export default async function chatHandler(req, res) {
       return res.status(400).json({ error: "メッセージが必要です" })
     }
 
-    const response = await ai.models.generateContent({
+    // モデルを取得
+    const model = genAI.getGenerativeModel({ 
       model: "gemini-1.5-pro",
-      contents: [
-        {
-          role: "system",
-          parts: [{ text: SYSTEM_PROMPT }]
-        },
-        {
-          role: "user",
-          parts: [{ text: message }]
-        }
-      ]
+      systemInstruction: SYSTEM_PROMPT
     })
 
+    // チャットを生成
+    const result = await model.generateContent(message)
+    const response = result.response
+    const text = response.text()
+
     res.json({
-      message: response.text
+      message: text
     })
   } catch (err) {
     console.error("Gemini error:", err)
-    res.status(500).json({ error: "Gemini error" })
+    res.status(500).json({ 
+      error: "Gemini APIエラーが発生しました",
+      details: err.message 
+    })
   }
 }
